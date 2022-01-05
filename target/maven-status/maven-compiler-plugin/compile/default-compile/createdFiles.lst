@@ -1,0 +1,15 @@
+org/algo/translator/repo/FollowerRepo.class
+org/algo/translator/entity/UserLanguage.class
+org/algo/translator/enums/LanguageType.class
+org/algo/translator/repo/UserLanguageRepo.class
+org/algo/translator/TranslatorApplication.class
+org/algo/translator/service/DefaultService.class
+org/algo/translator/service/MessageMaker.class
+org/algo/translator/enums/Statics.class
+org/algo/translator/model/RequestDto.class
+org/algo/translator/controller/Bot.class
+org/algo/translator/entity/Follower.class
+org/algo/translator/service/Translator.class
+org/algo/translator/service/CallBackService.class
+org/algo/translator/service/TextService.class
+org/algo/translator/service/BoardService.class
