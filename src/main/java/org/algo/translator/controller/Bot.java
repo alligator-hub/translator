@@ -62,31 +62,32 @@ public class Bot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
 
         RequestDto request = getRequest(update);
+        Follower follower = defaultService.receiveAction(request);
 
         if (request.getIsText()) {
 
-            Follower follower = defaultService.receiveAction(request);
             request.setFollower(follower);
 
             if (defaultService.isStart(request.getText())) {
                 Message message = sendMessage(
                         maker.make(request.getChatId(),
                                 Statics.WELCOME.getValue(),
-                                boardService.languagesBoard("",true))
+                                boardService.languagesBoard("", true))
                 );
 
                 //todo create new userLanguage froum and to languages deafault type AUTO//
                 callBackService.finishChooseLanguage(request.getChatId(), message.getMessageId(), null, follower);
 
-            } else if (request.getText().equals("/statistics") && request.getUsername().equals(adminUsername)) {
-                textService.statistics(request.getChatId());
+            } else if (request.getText().equals("/statistics")) {
+                if (request.getUsername().equals(adminUsername)) textService.statistics(request.getChatId());
+                else sendMessage(new SendMessage(request.getChatId() + "", "NOT ACCESS !"));
 
             } else if (request.getText().equals("/language")) {
                 Message message = sendMessage(
                         maker.make(
                                 request.getChatId(),
                                 Statics.WELCOME.getValue(),
-                                boardService.languagesBoard("",true)
+                                boardService.languagesBoard("", true)
                         )
                 );
                 callBackService.finishChooseLanguage(request.getChatId(), message.getMessageId(), null, follower);
@@ -96,7 +97,6 @@ public class Bot extends TelegramLongPollingBot {
 
 
         } else if (request.getIsCallBackQuery()) {
-            Follower follower = defaultService.receiveAction(request);
             request.setFollower(follower);
             callBackService.map(request);
         }

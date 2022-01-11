@@ -54,13 +54,17 @@ public class TextService {
         }
         //todo if useanguage not found then me send new select language board
         Message message = bot.sendMessage(
-                maker.make(request.getChatId(), Statics.WELCOME.getValue(), boardService.languagesBoard("",true))
+                maker.make(request.getChatId(), Statics.WELCOME.getValue(), boardService.languagesBoard("", true))
         );
         //todo create new userLanguage froum and to languages deafault type AUTO
         callBackService.finishChooseLanguage(request.getChatId(), message.getMessageId(), null, request.getFollower());
     }
 
     public void translateText(String text, Follower follower, UserLanguage language) {
+        if (language.getFromLang().getCode().equals(language.getToLang().getCode())) {
+            bot.sendMessage(maker.make(follower.getChatId(), text));
+            return;
+        }
         String translate = translator.getTranslate(text, language.getFromLang(), language.getToLang());
 
         bot.sendMessage(maker.make(follower.getChatId(), translate));

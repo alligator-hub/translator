@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.Optional;
 
 @Service
@@ -46,7 +44,7 @@ public class DefaultService {
             follower.setFirstName(request.getFirstName());
             follower.setLastName(request.getLastName());
             follower.setUsername(request.getUsername());
-            follower.setLastConnectionDate((LocalDateTime.now().toInstant(ZoneOffset.UTC)).getEpochSecond());
+            follower.setLastConnectionDate(Instant.now(Clock.systemUTC()).getEpochSecond()*1000);
             return followerRepo.save(follower);
         } else {
             return addNewFollower(request);
@@ -56,7 +54,7 @@ public class DefaultService {
 
     public Follower addNewFollower(RequestDto request) {
 
-        Long startedDate = (LocalDateTime.now().toInstant(ZoneOffset.UTC)).getEpochSecond();
+        Long startedDate = Instant.now(Clock.systemUTC()).getEpochSecond()*1000;
 
         Follower follower = new Follower();
         follower.setFirstName(request.getFirstName());
