@@ -29,7 +29,5 @@ public class Follower {
 
     private Long lastConnectionDate;
 
-    @ManyToOne
-    private Referral referral;
 
 }
