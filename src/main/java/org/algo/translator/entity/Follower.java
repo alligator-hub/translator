@@ -29,5 +29,4 @@ public class Follower {
 
     private Long lastConnectionDate;
 
-
 }
