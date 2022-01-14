@@ -11,6 +11,10 @@ public enum LanguageType {
     UZBEK("Uzbek", "uz", "\uD83C\uDDFA\uD83C\uDDFF"),
     HINDI("Hindi", "hi", "\uD83C\uDDEE\uD83C\uDDF3"),
     URDU("Urdu", "ur", "\uD83C\uDDF5\uD83C\uDDF0"),
+    PERSIAN("Persian", "fa", "\uD83C\uDDEE\uD83C\uDDF7"),
+    INDONESIAN("Indonesian", "id", "\uD83C\uDDEE\uD83C\uDDE9"),
+    GERMAN("German", "de", "\uD83C\uDDE9\uD83C\uDDEA"),
+    FRENCH("French", "fr", "\uD83C\uDDEB\uD83C\uDDF7"),
     AUTO("Auto", "au", "\uD83D\uDD87");
 
     private final String language;

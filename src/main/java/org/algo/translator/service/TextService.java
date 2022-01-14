@@ -8,14 +8,19 @@ import org.algo.translator.model.RequestDto;
 import org.algo.translator.repo.FollowerRepo;
 import org.algo.translator.repo.UserLanguageRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @Service
 public class TextService {
+
+    @Value("${admin.username}")
+    private String adminUsername;
 
     @Autowired
     FollowerRepo followerRepo;
@@ -61,22 +66,33 @@ public class TextService {
     }
 
     public void translateText(String text, Follower follower, UserLanguage language) {
-        if (language.getFromLang().getCode().equals(language.getToLang().getCode())) {
-            bot.sendMessage(maker.make(follower.getChatId(), text));
-            return;
+        String translate = null;
+        try {
+            if (language.getFromLang().getCode().equals(language.getToLang().getCode())) {
+                bot.sendMessage(maker.make(follower.getChatId(), text));
+                return;
+            }
+            translate = translator.getTranslate(text, language.getFromLang(), language.getToLang());
+        } catch (Exception e) {
+            bot.sendMessage(new SendMessage(adminUsername, Arrays.toString(e.getStackTrace())));
         }
-        String translate = translator.getTranslate(text, language.getFromLang(), language.getToLang());
+        if (translate == null) {
+            bot.sendMessage(new SendMessage(adminUsername, "from -> " + language.getFromLang() + "\nto -> " + language.getToLang() + "\ntext size " + text.length() + "\ntranslate text size " + 0));
 
-        bot.sendMessage(maker.make(follower.getChatId(), translate));
+        }
+        bot.sendMessage(maker.make(follower.getChatId(), translate == null ? "[BUG] Let the admin know @web_algo" : translate));
     }
 
     public void statistics(Long chatId) {
-        String staticsTemplate =
-                "<pre>---------------------------------</pre>\n" +
-                        "<b>Followers count:</b> " + followerRepo.count() + "\n" +
-                        "<pre>---------------------------------</pre>";
+        try {
+            String staticsTemplate =
+                    "<pre>---------------------------------</pre>\n" +
+                            "<b>Followers count:</b> " + followerRepo.count() + "\n" +
+                            "<pre>---------------------------------</pre>";
 
-        SendMessage message = maker.make(chatId, staticsTemplate);
-        bot.sendMessage(message);
+            SendMessage message = maker.make(chatId, staticsTemplate);
+            bot.sendMessage(message);
+        } catch (Exception ignore) {
+        }
     }
 }

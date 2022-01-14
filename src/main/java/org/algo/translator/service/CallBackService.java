@@ -43,12 +43,15 @@ public class CallBackService {
 
         Optional<UserLanguage> userLanguageOptional = userLanguageRepo.findByFollower_ChatId(request.getChatId());
         if (userLanguageOptional.isPresent()) {
-            UserLanguage userLanguage = userLanguageOptional.get();
-            if (!Objects.equals(userLanguage.getLastBoardId(), request.getMessageId())) {
-                bot.deleteMessage(request.getChatId(), userLanguage.getLastBoardId());
+            try {
+                UserLanguage userLanguage = userLanguageOptional.get();
+                if (!Objects.equals(userLanguage.getLastBoardId(), request.getMessageId())) {
+                    bot.deleteMessage(request.getChatId(), userLanguage.getLastBoardId());
+                }
+                userLanguage.setLastBoardId(request.getMessageId());
+                userLanguageRepo.save(userLanguage);
+            } catch (Exception ignored) {
             }
-            userLanguage.setLastBoardId(request.getMessageId());
-            userLanguageRepo.save(userLanguage);
         }
 
 
@@ -66,39 +69,46 @@ public class CallBackService {
 
     public void selectLanguage(Long chatId, Integer messageId, String data, boolean first) {
 
-        String text;
-        if (first) {
-            data = "";
-            text = Statics.WELCOME.getValue();
-        } else {
-            text = Statics.TRANSLATE_LANG.getValue();
-        }
+        try {
+            String text;
+            if (first) {
+                data = "";
+                text = Statics.WELCOME.getValue();
+            } else {
+                text = Statics.TRANSLATE_LANG.getValue();
+            }
 
-        bot.editMessage(messageMaker.editMessage(text, chatId, messageId, null, boardService.languagesBoard(data,first)));
+            bot.editMessage(messageMaker.editMessage(text, chatId, messageId, null, boardService.languagesBoard(data, first)));
+        } catch (Exception ignored) {
+        }
     }
 
 
     public void finishChooseLanguage(Long chatId, Integer messageId, String data, Follower follower) {
-        LanguageType fromLang;
-        LanguageType toLang;
-        if (data == null) {
-            fromLang = LanguageType.AUTO;
-            toLang = LanguageType.AUTO;
-        } else {
-            fromLang = LanguageType.getLanguage(data.substring(0, data.indexOf(" ")));
-            toLang = LanguageType.getLanguage(data.substring(data.lastIndexOf(" ") + 1));
+        try {
+            LanguageType fromLang;
+            LanguageType toLang;
+            if (data == null) {
+                fromLang = LanguageType.AUTO;
+                toLang = LanguageType.AUTO;
+            } else {
+                fromLang = LanguageType.getLanguage(data.substring(0, data.indexOf(" ")));
+                toLang = LanguageType.getLanguage(data.substring(data.lastIndexOf(" ") + 1));
+            }
+
+            UserLanguage userLanguage;
+            Optional<UserLanguage> userLanguageOptional = userLanguageRepo.findByFollower_ChatId(chatId);
+            userLanguage = userLanguageOptional.orElseGet(() -> new UserLanguage(follower));
+
+            userLanguage.setFromLang(fromLang);
+            userLanguage.setToLang(toLang);
+            userLanguage.setLastBoardId(messageId);
+
+            userLanguageRepo.save(userLanguage);
+            if (data == null) return;
+            bot.editMessage(messageMaker.editMessage(Statics.ENTER_TEXT.getValue(), chatId, messageId, null, boardService.backBoard()));
+
+        } catch (Exception ignored) {
         }
-
-        UserLanguage userLanguage;
-        Optional<UserLanguage> userLanguageOptional = userLanguageRepo.findByFollower_ChatId(chatId);
-        userLanguage = userLanguageOptional.orElseGet(() -> new UserLanguage(follower));
-
-        userLanguage.setFromLang(fromLang);
-        userLanguage.setToLang(toLang);
-        userLanguage.setLastBoardId(messageId);
-
-        userLanguageRepo.save(userLanguage);
-        if (data == null) return;
-        bot.editMessage(messageMaker.editMessage(Statics.ENTER_TEXT.getValue(), chatId, messageId, null, boardService.backBoard()));
     }
 }

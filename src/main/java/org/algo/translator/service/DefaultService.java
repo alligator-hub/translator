@@ -8,9 +8,9 @@ import org.algo.translator.repo.FollowerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -37,24 +37,28 @@ public class DefaultService {
 
     public Follower receiveAction(RequestDto request) {
 
-        Optional<Follower> followerOptional = followerRepo.findByChatId(request.getChatId());
+        try {
+            Optional<Follower> followerOptional = followerRepo.findByChatId(request.getChatId());
 
-        if (followerOptional.isPresent()) {
-            Follower follower = followerOptional.get();
-            follower.setFirstName(request.getFirstName());
-            follower.setLastName(request.getLastName());
-            follower.setUsername(request.getUsername());
-            follower.setLastConnectionDate(Instant.now(Clock.systemUTC()).getEpochSecond()*1000);
-            return followerRepo.save(follower);
-        } else {
-            return addNewFollower(request);
+            if (followerOptional.isPresent()) {
+                Follower follower = followerOptional.get();
+                follower.setFirstName(request.getFirstName());
+                follower.setLastName(request.getLastName());
+                follower.setUsername(request.getUsername());
+                follower.setLastConnectionDate(Instant.now(Clock.systemUTC()).getEpochSecond() * 1000);
+                return followerRepo.save(follower);
+            } else {
+                return addNewFollower(request);
+            }
+        } catch (Exception ignored) {
         }
+        return null;
     }
 
 
     public Follower addNewFollower(RequestDto request) {
 
-        Long startedDate = Instant.now(Clock.systemUTC()).getEpochSecond()*1000;
+        Long startedDate = Instant.now(Clock.systemUTC()).getEpochSecond() * 1000;
 
         Follower follower = new Follower();
         follower.setFirstName(request.getFirstName());

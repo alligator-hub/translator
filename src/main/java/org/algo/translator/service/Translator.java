@@ -16,15 +16,20 @@ public class Translator {
 
     public String getTranslate(String text, LanguageType from, LanguageType to) {
 
-        System.setProperty("GOOGLE_API_KEY","AIzaSyBvopR1NnpGOiZVl6UaeovNOMyRYpvLdMA");
-        Translate translate = TranslateOptions.getDefaultInstance().getService();
+        try {
+            System.setProperty("GOOGLE_API_KEY", "AIzaSyBvopR1NnpGOiZVl6UaeovNOMyRYpvLdMA");
+            Translate translate = TranslateOptions.getDefaultInstance().getService();
 
-        Translation translation = translate.translate(
-                text,
-                Translate.TranslateOption.sourceLanguage(from.getCode()),
-                Translate.TranslateOption.targetLanguage(to.getCode())
-        );
-        return translation.getTranslatedText();
+            Translation translation = translate.translate(
+                    text,
+                    Translate.TranslateOption.sourceLanguage(from.getCode()),
+                    Translate.TranslateOption.targetLanguage(to.getCode())
+            );
+            return translation.getTranslatedText();
+        } catch (Exception ignore) {
+
+        }
+        return null;
     }
 
 }

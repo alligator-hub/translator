@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 @Component
 @Slf4j
@@ -61,89 +62,101 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
 
-        RequestDto request = getRequest(update);
-        Follower follower = defaultService.receiveAction(request);
+        try {
+            RequestDto request = getRequest(update);
+            Follower follower = defaultService.receiveAction(request);
 
-        if (request.getIsText()) {
+            if (request.getIsText()) {
 
-            request.setFollower(follower);
+                request.setFollower(follower);
 
-            if (defaultService.isStart(request.getText())) {
-                Message message = sendMessage(
-                        maker.make(request.getChatId(),
-                                Statics.WELCOME.getValue(),
-                                boardService.languagesBoard("", true))
-                );
+                if (defaultService.isStart(request.getText())) {
+                    Message message = sendMessage(
+                            maker.make(request.getChatId(),
+                                    Statics.WELCOME.getValue(),
+                                    boardService.languagesBoard("", true))
+                    );
 
-                //todo create new userLanguage froum and to languages deafault type AUTO//
-                callBackService.finishChooseLanguage(request.getChatId(), message.getMessageId(), null, follower);
+                    //todo create new userLanguage froum and to languages deafault type AUTO//
+                    callBackService.finishChooseLanguage(request.getChatId(), message.getMessageId(), null, follower);
 
-            } else if (request.getText().equals("/statistics")) {
-                if (request.getUsername().equals(adminUsername)) textService.statistics(request.getChatId());
-                else sendMessage(new SendMessage(request.getChatId() + "", "NOT ACCESS !"));
+                } else if (request.getText().equals("/statistics")) {
+                    if (request.getUsername().equals(adminUsername)) textService.statistics(request.getChatId());
+                    else sendMessage(new SendMessage(request.getChatId() + "", "NOT ACCESS !"));
 
-            } else if (request.getText().equals("/language")) {
-                Message message = sendMessage(
-                        maker.make(
-                                request.getChatId(),
-                                Statics.WELCOME.getValue(),
-                                boardService.languagesBoard("", true)
-                        )
-                );
-                callBackService.finishChooseLanguage(request.getChatId(), message.getMessageId(), null, follower);
-            } else {
-                textService.map(request);
+                } else if (request.getText().equals("/language")) {
+                    Message message = sendMessage(
+                            maker.make(
+                                    request.getChatId(),
+                                    Statics.WELCOME.getValue(),
+                                    boardService.languagesBoard("", true)
+                            )
+                    );
+                    callBackService.finishChooseLanguage(request.getChatId(), message.getMessageId(), null, follower);
+                } else {
+                    textService.map(request);
+                }
+
+
+            } else if (request.getIsCallBackQuery()) {
+                request.setFollower(follower);
+                callBackService.map(request);
             }
-
-
-        } else if (request.getIsCallBackQuery()) {
-            request.setFollower(follower);
-            callBackService.map(request);
+        } catch (Exception e) {
+            sendMessage(new SendMessage(adminUsername, Arrays.toString(e.getStackTrace())));
         }
     }
 
 
     private RequestDto getRequest(Update update) {
         RequestDto requestDto = new RequestDto();
-        if (update.hasCallbackQuery()) {
-            requestDto.setIsText(false);
-            requestDto.setIsCallBackQuery(true);
+        try {
+            if (update.hasCallbackQuery()) {
+                requestDto.setIsText(false);
+                requestDto.setIsCallBackQuery(true);
 
-            requestDto.setChatId(update.getCallbackQuery().getMessage().getChatId());
-            requestDto.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+                requestDto.setChatId(update.getCallbackQuery().getMessage().getChatId());
+                requestDto.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
 
-            requestDto.setFirstName(update.getCallbackQuery().getMessage().getChat().getFirstName());
-            requestDto.setLastName(update.getCallbackQuery().getMessage().getChat().getLastName());
-            requestDto.setUsername(update.getCallbackQuery().getMessage().getChat().getUserName());
+                requestDto.setFirstName(update.getCallbackQuery().getMessage().getChat().getFirstName());
+                requestDto.setLastName(update.getCallbackQuery().getMessage().getChat().getLastName());
+                requestDto.setUsername(update.getCallbackQuery().getMessage().getChat().getUserName());
 
-            requestDto.setText(update.getCallbackQuery().getMessage().getText());
-            requestDto.setData(update.getCallbackQuery().getData());
+                requestDto.setText(update.getCallbackQuery().getMessage().getText());
+                requestDto.setData(update.getCallbackQuery().getData());
 
-        } else if (update.hasMessage()) {
-            if (update.getMessage().hasText()) {
-                requestDto.setIsText(true);
-                requestDto.setIsCallBackQuery(false);
+            } else if (update.hasMessage()) {
+                if (update.getMessage().hasText()) {
+                    requestDto.setIsText(true);
+                    requestDto.setIsCallBackQuery(false);
 
-                requestDto.setChatId(update.getMessage().getChatId());
-                requestDto.setMessageId(update.getMessage().getMessageId());
+                    requestDto.setChatId(update.getMessage().getChatId());
+                    requestDto.setMessageId(update.getMessage().getMessageId());
 
-                requestDto.setFirstName(update.getMessage().getChat().getFirstName());
-                requestDto.setLastName(update.getMessage().getChat().getLastName());
-                requestDto.setUsername(update.getMessage().getChat().getUserName());
+                    requestDto.setFirstName(update.getMessage().getChat().getFirstName());
+                    requestDto.setLastName(update.getMessage().getChat().getLastName());
+                    requestDto.setUsername(update.getMessage().getChat().getUserName());
 
-                requestDto.setData(null);
-                requestDto.setText(update.getMessage().getText());
+                    requestDto.setData(null);
+                    requestDto.setText(update.getMessage().getText());
+                }
             }
+        } catch (Exception e) {
+            sendMessage(new SendMessage(adminUsername, Arrays.toString(e.getStackTrace())));
         }
         return requestDto;
     }
 
 
     public Message sendMessage(SendMessage sendMessage) {
+        if (sendMessage.getText().length()>4096){
+            sendMessage.setText(sendMessage.getText().substring(0,4096));
+        }
         try {
             return execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
+            sendMessage(new SendMessage(adminUsername, "translate text size " + sendMessage.getText().length()));
             return null;
         }
     }
