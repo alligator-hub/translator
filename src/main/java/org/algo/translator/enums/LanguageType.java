@@ -10,6 +10,7 @@ public enum LanguageType {
     TURKISH("Turkish", "tr", "\uD83C\uDDF9\uD83C\uDDF7"),
     UZBEK("Uzbek", "uz", "\uD83C\uDDFA\uD83C\uDDFF"),
     HINDI("Hindi", "hi", "\uD83C\uDDEE\uD83C\uDDF3"),
+    MALAYALAM("Malayalam", "ml", "\uD83C\uDDEE\uD83C\uDDF3"),
     URDU("Urdu", "ur", "\uD83C\uDDF5\uD83C\uDDF0"),
     PERSIAN("Persian", "fa", "\uD83C\uDDEE\uD83C\uDDF7"),
     INDONESIAN("Indonesian", "id", "\uD83C\uDDEE\uD83C\uDDE9"),

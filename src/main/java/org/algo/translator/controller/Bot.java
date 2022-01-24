@@ -18,7 +18,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 @Component
 @Slf4j
@@ -64,6 +63,7 @@ public class Bot extends TelegramLongPollingBot {
 
         try {
             RequestDto request = getRequest(update);
+            if (request == null) return;
             Follower follower = defaultService.receiveAction(request);
 
             if (request.getIsText()) {
@@ -102,16 +102,16 @@ public class Bot extends TelegramLongPollingBot {
                 request.setFollower(follower);
                 callBackService.map(request);
             }
-        } catch (Exception e) {
-            sendMessage(new SendMessage(adminUsername, Arrays.toString(e.getStackTrace())));
+        } catch (Exception ignored) {
         }
     }
 
 
     private RequestDto getRequest(Update update) {
-        RequestDto requestDto = new RequestDto();
+        RequestDto requestDto = null;
         try {
             if (update.hasCallbackQuery()) {
+                requestDto = new RequestDto();
                 requestDto.setIsText(false);
                 requestDto.setIsCallBackQuery(true);
 
@@ -127,6 +127,7 @@ public class Bot extends TelegramLongPollingBot {
 
             } else if (update.hasMessage()) {
                 if (update.getMessage().hasText()) {
+                    requestDto = new RequestDto();
                     requestDto.setIsText(true);
                     requestDto.setIsCallBackQuery(false);
 
@@ -141,22 +142,20 @@ public class Bot extends TelegramLongPollingBot {
                     requestDto.setText(update.getMessage().getText());
                 }
             }
-        } catch (Exception e) {
-            sendMessage(new SendMessage(adminUsername, Arrays.toString(e.getStackTrace())));
+        } catch (Exception ignore) {
         }
         return requestDto;
     }
 
 
     public Message sendMessage(SendMessage sendMessage) {
-        if (sendMessage.getText().length()>4096){
-            sendMessage.setText(sendMessage.getText().substring(0,4096));
+        if (sendMessage.getText().length() > 4096) {
+            sendMessage.setText(sendMessage.getText().substring(0, 4096));
         }
         try {
             return execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
-            sendMessage(new SendMessage(adminUsername, "translate text size " + sendMessage.getText().length()));
             return null;
         }
     }

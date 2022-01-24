@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 @Service
@@ -73,13 +72,9 @@ public class TextService {
                 return;
             }
             translate = translator.getTranslate(text, language.getFromLang(), language.getToLang());
-        } catch (Exception e) {
-            bot.sendMessage(new SendMessage(adminUsername, Arrays.toString(e.getStackTrace())));
+        } catch (Exception ignore) {
         }
-        if (translate == null) {
-            bot.sendMessage(new SendMessage(adminUsername, "from -> " + language.getFromLang() + "\nto -> " + language.getToLang() + "\ntext size " + text.length() + "\ntranslate text size " + 0));
 
-        }
         bot.sendMessage(maker.make(follower.getChatId(), translate == null ? "[BUG] Let the admin know @web_algo" : translate));
     }
 
