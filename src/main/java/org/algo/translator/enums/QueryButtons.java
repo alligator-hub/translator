@@ -1,9 +1,10 @@
 package org.algo.translator.enums;
 
-public enum LanguageType {
+public enum QueryButtons {
     ARABIC("Arabic", "ar", "\uD83C\uDDE6\uD83C\uDDEA"),
-    CHINESE_SIMPLIFIELD("Chinese", "zh-CN", "\uD83C\uDDE8\uD83C\uDDF3"),
     ENGLISH("English", "en", "\uD83C\uDDFA\uD83C\uDDF8"),
+    CHINESE_SIMPLIFIELD("Chinese SM", "zh-CN", "\uD83C\uDDE8\uD83C\uDDF3"),
+    CHINESE_TRADITIONAL("Chinese TR", "zh-TW", "\uD83C\uDDE8\uD83C\uDDF3"),
     KOREAN("Korean", "ko", "\uD83C\uDDF0\uD83C\uDDF7"),
     RUSSIAN("Russian", "ru", "\uD83C\uDDF7\uD83C\uDDFA"),
     TAJIK("Tajik", "tg", "\uD83C\uDDF9\uD83C\uDDEF"),
@@ -16,33 +17,34 @@ public enum LanguageType {
     INDONESIAN("Indonesian", "id", "\uD83C\uDDEE\uD83C\uDDE9"),
     GERMAN("German", "de", "\uD83C\uDDE9\uD83C\uDDEA"),
     FRENCH("French", "fr", "\uD83C\uDDEB\uD83C\uDDF7"),
+    BACK("Back", "back", null),
     AUTO("Auto", "au", "\uD83D\uDD87");
 
-    private final String language;
+    private final String text;
     private final String code;
-    private final String flag;
+    private final String sticker;
 
 
-    public String getLanguage() {
-        return language;
+    public String getText() {
+        return text;
     }
 
     public String getCode() {
         return code;
     }
 
-    public String getFlag() {
-        return flag;
+    public String getSticker() {
+        return sticker;
     }
 
-    LanguageType(String language, String code, String flag) {
-        this.language = language;
+    QueryButtons(String text, String code, String sticker) {
+        this.text = text;
         this.code = code;
-        this.flag = flag;
+        this.sticker = sticker;
     }
 
-    public static LanguageType getLanguage(String code) {
-        for (LanguageType value : values()) {
+    public static QueryButtons getLanguage(String code) {
+        for (QueryButtons value : values()) {
             if (value.code.equals(code)) {
                 return value;
             }

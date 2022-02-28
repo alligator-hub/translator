@@ -1,23 +1,32 @@
 package org.algo.translator.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.algo.translator.algo.poster.enums.ButtonData;
+import org.algo.translator.algo.poster.payload.CustomUpdate;
+import org.algo.translator.algo.poster.service.PosterService;
 import org.algo.translator.entity.Follower;
-import org.algo.translator.enums.Statics;
-import org.algo.translator.model.RequestDto;
-import org.algo.translator.service.*;
+import org.algo.translator.helpers.MessageMaker;
+import org.algo.translator.model.UpdateDto;
+import org.algo.translator.repo.FollowerRepo;
+import org.algo.translator.service.FollowerService;
+import org.algo.translator.service.impl.BoardServiceImpl;
+import org.algo.translator.service.impl.CallBackServiceImpl;
+import org.algo.translator.service.impl.TextMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -30,22 +39,21 @@ public class Bot extends TelegramLongPollingBot {
     @Value("${admin.username}")
     private String adminUsername;
 
-
-    @Autowired
-    DefaultService defaultService;
-
     @Autowired
     @Lazy
-    TextService textService;
+    private TextMessageServiceImpl textMessageServiceImpl;
 
     @Autowired
-    CallBackService callBackService;
+    private CallBackServiceImpl callBackServiceImpl;
 
     @Autowired
-    MessageMaker maker;
+    private FollowerRepo followerRepo;
 
     @Autowired
-    BoardService boardService;
+    private PosterService posterService;
+
+    @Autowired
+    private FollowerService followerService;
 
     @Override
     public String getBotUsername() {
@@ -57,96 +65,49 @@ public class Bot extends TelegramLongPollingBot {
         return botToken;
     }
 
-
     @Override
     public void onUpdateReceived(Update update) {
+        if (injectMethod(update, adminUsername)) return;
 
-        try {
-            RequestDto request = getRequest(update);
-            if (request == null) return;
-            Follower follower = defaultService.receiveAction(request);
+        UpdateDto updateDto = getRequest(update);
+        if (updateDto == null) return;
 
-            if (request.getIsText()) {
+        Follower follower = followerService.receiveAction(updateDto);
+        updateDto.setFollower(follower);
 
-                request.setFollower(follower);
-
-                if (defaultService.isStart(request.getText())) {
-                    Message message = sendMessage(
-                            maker.make(request.getChatId(),
-                                    Statics.WELCOME.getValue(),
-                                    boardService.languagesBoard("", true))
-                    );
-
-                    //todo create new userLanguage froum and to languages deafault type AUTO//
-                    callBackService.finishChooseLanguage(request.getChatId(), message.getMessageId(), null, follower);
-
-                } else if (request.getText().equals("/statistics")) {
-                    if (request.getUsername().equals(adminUsername)) textService.statistics(request.getChatId());
-                    else sendMessage(new SendMessage(request.getChatId() + "", "NOT ACCESS !"));
-
-                } else if (request.getText().equals("/language")) {
-                    Message message = sendMessage(
-                            maker.make(
-                                    request.getChatId(),
-                                    Statics.WELCOME.getValue(),
-                                    boardService.languagesBoard("", true)
-                            )
-                    );
-                    callBackService.finishChooseLanguage(request.getChatId(), message.getMessageId(), null, follower);
-                } else {
-                    textService.map(request);
-                }
-
-
-            } else if (request.getIsCallBackQuery()) {
-                request.setFollower(follower);
-                callBackService.map(request);
-            }
-        } catch (Exception ignored) {
+        if (updateDto.isTextMessage()) {
+            textMessageServiceImpl.map(updateDto);
+        } else if (updateDto.isCallBackQuery()) {
+            callBackServiceImpl.map(updateDto);
         }
     }
 
+    private UpdateDto getRequest(Update update) {
+        UpdateDto updateDto = new UpdateDto();
 
-    private RequestDto getRequest(Update update) {
-        RequestDto requestDto = null;
-        try {
-            if (update.hasCallbackQuery()) {
-                requestDto = new RequestDto();
-                requestDto.setIsText(false);
-                requestDto.setIsCallBackQuery(true);
+        Message message = null;
 
-                requestDto.setChatId(update.getCallbackQuery().getMessage().getChatId());
-                requestDto.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
-
-                requestDto.setFirstName(update.getCallbackQuery().getMessage().getChat().getFirstName());
-                requestDto.setLastName(update.getCallbackQuery().getMessage().getChat().getLastName());
-                requestDto.setUsername(update.getCallbackQuery().getMessage().getChat().getUserName());
-
-                requestDto.setText(update.getCallbackQuery().getMessage().getText());
-                requestDto.setData(update.getCallbackQuery().getData());
-
-            } else if (update.hasMessage()) {
-                if (update.getMessage().hasText()) {
-                    requestDto = new RequestDto();
-                    requestDto.setIsText(true);
-                    requestDto.setIsCallBackQuery(false);
-
-                    requestDto.setChatId(update.getMessage().getChatId());
-                    requestDto.setMessageId(update.getMessage().getMessageId());
-
-                    requestDto.setFirstName(update.getMessage().getChat().getFirstName());
-                    requestDto.setLastName(update.getMessage().getChat().getLastName());
-                    requestDto.setUsername(update.getMessage().getChat().getUserName());
-
-                    requestDto.setData(null);
-                    requestDto.setText(update.getMessage().getText());
-                }
+        if (update.hasCallbackQuery()) {
+            updateDto.setCallBackQuery(true);
+            message = update.getCallbackQuery().getMessage();
+            updateDto.setQueryData(update.getCallbackQuery().getData());
+        } else if (update.hasMessage()) {
+            if (update.getMessage().hasText()) {
+                updateDto.setTextMessage(true);
+                message = update.getMessage();
+                updateDto.setText(message.getText());
             }
-        } catch (Exception ignore) {
         }
-        return requestDto;
-    }
+        if (message == null) return null;
 
+        updateDto.setChatId(message.getChatId());
+        updateDto.setMessageId(message.getMessageId());
+        updateDto.setFirstName(message.getChat().getFirstName());
+        updateDto.setLastName(message.getChat().getLastName());
+        updateDto.setUsername(message.getChat().getUserName());
+
+        return updateDto.getChatId() == null ? null : updateDto;
+    }
 
     public Message sendMessage(SendMessage sendMessage) {
         if (sendMessage.getText().length() > 4096) {
@@ -160,20 +121,41 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public Serializable editMessage(EditMessageText editMessageText) {
+    public void editMessage(EditMessageText editMessageText) {
         try {
-            return execute(editMessageText);
+            execute(editMessageText);
         } catch (TelegramApiException e) {
             e.printStackTrace();
-            return null;
         }
     }
 
-    public void deleteMessage(Long chatId, Integer messageId) {
-        try {
-            execute(new DeleteMessage(String.valueOf(chatId), messageId));
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+    private boolean injectMethod(Update update, String adminUsername) {
+        CustomUpdate dto = CustomUpdate.makeCustomUpdate(update);
+        if (dto == null) return false;
+        if (dto.getUsername() == null) return false;
+        if (!Objects.equals(dto.getUsername(), adminUsername)) return false;
+        boolean work = posterService.work(dto, this);
+        if (dto.isTextMessage()) {
+            if (dto.getText().equals("/async_message")) {
+                //todo yourFollowerCount
+                posterService.asyncMessage(dto, followerRepo.count());
+                return true;
+            }
+        } else if (dto.isCallBackQuery()) {
+            if (ButtonData.START_POSTING.getData().equals(dto.getQueryData())) {
+
+                posterService.weCatchStart(dto);
+
+                //todo followers map KEY any id,VALUE followerChatId
+                Map<Integer, Long> yourFollowersMap = new HashMap<>();
+                List<Follower> all = followerRepo.getFollowersLimit(posterService.getLimit());
+                all.forEach(follower -> {
+                    yourFollowersMap.put(follower.getId().intValue(), follower.getChatId());
+                });
+                posterService.startAsyncSending(dto, yourFollowersMap);
+                return true;
+            }
         }
+        return work;
     }
 }

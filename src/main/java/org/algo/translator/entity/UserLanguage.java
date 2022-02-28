@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.algo.translator.enums.LanguageType;
+import org.algo.translator.enums.QueryButtons;
 
 import javax.persistence.*;
 
@@ -22,12 +22,10 @@ public class UserLanguage {
     private Follower follower;
 
     @Enumerated(EnumType.STRING)
-    private LanguageType fromLang;
+    private QueryButtons fromLang;
 
     @Enumerated(EnumType.STRING)
-    private LanguageType toLang;
-
-    private Integer lastBoardId;
+    private QueryButtons toLang;
 
     public UserLanguage(Follower follower) {
         this.follower = follower;

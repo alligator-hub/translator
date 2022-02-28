@@ -94,7 +94,6 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-aspects:5.3.14" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: org.postgresql:postgresql:42.3.1" level="project" />
     <orderEntry type="library" name="Maven: org.checkerframework:checker-qual:3.5.0" level="project" />
-    <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.18.22" level="project" />
     <orderEntry type="library" name="Maven: org.telegram:telegrambots-spring-boot-starter:5.4.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.telegram:telegrambots:5.4.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.telegram:telegrambots-meta:5.4.0.1" level="project" />
@@ -167,7 +166,6 @@
     <orderEntry type="library" name="Maven: com.google.cloud:google-cloud-core:2.3.3" level="project" />
     <orderEntry type="library" name="Maven: com.google.auto.value:auto-value-annotations:1.8.2" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java-util:3.19.1" level="project" />
-    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.9" level="project" />
     <orderEntry type="library" name="Maven: com.google.api.grpc:proto-google-iam-v1:1.1.7" level="project" />
     <orderEntry type="library" name="Maven: com.google.http-client:google-http-client-gson:1.40.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.cloud:google-cloud-core-http:2.3.3" level="project" />
@@ -190,5 +188,7 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.13.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.cloud:google-cloud-storage:2.2.2" level="project" />
     <orderEntry type="library" name="Maven: com.google.apis:google-api-services-storage:v1-rev20211201-1.32.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.22" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.9.0" level="project" />
   </component>
 </module>

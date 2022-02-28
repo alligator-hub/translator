@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Short documintation</title>
+</head>
+
+<body>
+    <div class="wrapper">
+        <h1 style="text-align: center; margin-bottom: 50px;">Documentation for jar dependency</h1>
+
+        <div class="code-wrapper">
+            <h3>Injection dependency</h3>
+            <code>
+                @Autowired<br>
+                private PosterService posterService;
+     </code>
+        </div>
+        <div class="code-wrapper" style="margin-top: 50px;">
+            <h3>Gson and Lombok dependency for pom.xml</h3>
+            <code>
+                    &lt;dependency&gt; <br>
+                       <pre>    &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</pre>
+                       <pre>    &lt;artifactId&gt;lombok&lt;/artifactId&gt;</pre>
+                       <pre>    &lt;version&gt;1.18.22&lt;/version&gt;</pre>
+                       <pre>    &lt;scope&gt;provided&lt;/scope&gt;</pre>
+                    &lt;/dependency&gt;
+                    <br>
+                    &lt;dependency&gt;<br>
+                        <pre>    &lt;groupId&gt;com.google.code.gson&lt;/groupId&gt;</pre>
+                        <pre>    &lt;artifactId&gt;gson&lt;/artifactId&gt;</pre>
+                        <pre>    &lt;version&gt;2.9.0&lt;/version&gt;</pre>
+                &lt;/dependency&gt;
+        
+     </code>
+        </div>
+        <div class="code-wrapper" style="margin-top: 50px;">
+            <h3>Injection method</h3>
+            <code>
+            <pre>private boolean injectMethod(Update update, String adminUsername) {</pre>
+            <pre>   CustomUpdate dto = CustomUpdate.makeCustomUpdate(update);</pre>
+            <pre>   if (!Objects.equals(dto.getUsername(), adminUsername)) return false;</pre>
+            <pre>   boolean work = posterService.work(dto, this);</pre>
+            <pre>   if (dto.isTextMessage()) {</pre>
+            <pre>       if (dto.getText().equals("/async_message")) {</pre>
+        
+            <pre>           //todo yourFollowerCount </pre>
+            <pre>           long yourFollowersCount = 10000L;</pre>
+        
+            <pre>           posterService.asyncMessage(dto, yourFollowersCount);</pre>
+            <pre>           return true;</pre>
+            <pre>       }</pre>
+            <pre>   } else if (dto.isCallBackQuery()) {</pre>
+            <pre>       if (ButtonData.START_POSTING.getData().equals(dto.getQueryData())) {</pre>
+            <pre>           //todo followers map KEY any id,VALUE followerChatId</pre>
+            <pre>           Map<<code>Integer,Long</code>> yourFollowersMap = new HashMap<>();</pre>
+            <pre>           posterService.startAsyncSending(dto, yourFollowersMap);</pre>
+            <pre>           return true;</pre>
+            <pre>       }</pre>
+            <pre>   }</pre>
+            <pre>   return work;</pre>
+            <pre>}</pre>        
+            </code>
+        </div>
+
+        <div class="code-wrapper" style="margin-top: 50px;">
+            <h3>Inject method</h3>
+            <code>
+            <pre>@Override</pre>
+            <pre>public void onUpdateReceived(Update update) {</pre> 
+            <pre>   if (injectMethod(update, "admin_username")) return;</pre>
+            <pre>}</pre>
+            </code>
+        </div>
+        <div class="code-wrapper" style="margin-top: 50px;">
+            <h3>aplication.properties injection</h3>
+            <code>
+                async_posting_json_file_path=path/for/json/folder
+            </code>
+        </div>
+        <div class="code-wrapper" style="margin-top: 50px;">
+            <h3>Happy hacking ;)</h3>
+            <code>
+                /async_message send this command to your bot
+            </code>
+        </div>
+    </div>
+</body>
+
+<style>
+    body {
+        background-color: #11111d;
+        color: #fff;
+        font-family: sans-serif;
+        padding: 0 50px 0 50px;
+    }
+
+    .wrapper {
+        justify-content: center;
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .code-wrapper {
+        position: relative;
+        justify-content: center;
+        display: flex;
+        color: #ccc;
+        font-size: 13px;
+        line-height: 16px;
+        border: 3px solid #6e6e80;
+        padding: 30px;
+        letter-spacing: 1px;
+        width: 700px;
+        background-color: #0e0e11a2;
+        border-radius: 0 20px 20px 20px;
+    }
+
+    .code-wrapper h3 {
+        position: absolute;
+        left: 0;
+        top: -40px;
+        color: #fff;
+    }
+
+    .tab1 {
+        tab-size: 2;
+    }
+
+    .tab2 {
+        tab-size: 4;
+    }
+
+    .tab3 {
+        tab-size: 6;
+    }
+
+    .tab4 {
+        tab-size: 8;
+    }
+</style>
+
+</html>

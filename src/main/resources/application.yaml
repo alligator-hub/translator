@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://ec2-3-134-243-230.us-east-2.compute.amazonaws.com:5432/translator
+    username: postgres
+    password: 8516DF6127#
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: true
+    show-sql: false
+
+translate:
+  key: AIzaSyBvopR1NnpGOiZVl6UaeovNOMyRYpvLdMA
+
+admin:
+  username: web_algo
+
+bot:
+  username: translate_text_bot
+  token: 2114828070:AAFe3kEGUG5Yd59RzML2a2JOsq1zbbjcBOk
+  bug_msg: "[BUG] Let the admin know @web_algo"
+  commands:
+    start: /start
+    statics: /statistics
+    language: /languages

@@ -8,8 +8,7 @@ import lombok.Getter;
 public enum Statics {
     WELCOME("From which language:"),
     TRANSLATE_LANG("Which language:"),
-    ENTER_TEXT("Enter the text to be translated:"),
-    CMD_START("/start"),
+    ENTER_TEXT("Enter the text to be translated:")
     ;
 
     private final String value;

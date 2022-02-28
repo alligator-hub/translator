@@ -7,6 +7,6 @@ import org.algo.translator.model.UpdateDto;
  * @since 28.02.2022
  */
 
-public interface CallBackService {
-    void map(UpdateDto request);
+public interface TextMessageService {
+    void map(UpdateDto updateDto);
 }
